@@ -111,4 +111,27 @@ router.delete('/:id', (req, res) => {
 		});
 });
 
+router.put('/:id', (req, res) => {
+	const { id } = req.params;
+	const { title, contents } = req.body;
+	if (!title && !contents) {
+		return res.status(400).json({ errorMessage: 'Please provide title and contents for the post.' });
+	}
+	DataBase.update(id, { title, contents })
+		.then((updated) => {
+			if (updated) {
+				DataBase.findById(id).then((posts) => res.status(200).json(posts)).catch((err) => {
+					console.log(err);
+					res.status(500).json({ error: 'The post information could not be modified.' });
+				});
+			} else {
+				res.status(404).json({ message: 'The post with the specified ID does not exist.' });
+			}
+		})
+		.catch((err) => {
+			console.log(err);
+			res.status(500).json({ error: 'The user information could not be retrieved.' });
+		});
+});
+
 module.exports = router;
